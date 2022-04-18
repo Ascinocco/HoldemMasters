@@ -50,7 +50,7 @@
               {/if}
             </span>
           </div>
-          <div class="form-control w-full max-w-xs pb-8">
+          <div class="form-control w-full max-w-xs pb-14">
             <label for="password" class="label">
               <span class="label-text-alt text-black">Password</span>
             </label>
