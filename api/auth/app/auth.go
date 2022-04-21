@@ -19,7 +19,7 @@ type Token struct {
 var JwtAuthentication = func(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Endpoints that are not authenticated
-		unauthenticatedEndpoints := []string{"/api/user/new", "/api/user/login"}
+		unauthenticatedEndpoints := []string{"/api/user/new", "/api/user/login", "/auth-test"}
 
 		// current url
 		requestPath := r.URL.Path
