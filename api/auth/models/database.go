@@ -6,6 +6,7 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
 
 var db *gorm.DB
@@ -18,12 +19,17 @@ func init() {
 		os.Exit(1)
 	}
 
+	// @TODO: Drop all db's, create new db for project, and setup db from AutoMigrate fn below.
+	// Check tutorial for examples on how to setup AutoMigrate. anthonyscinocco is the db that has the users table
+	// currently.
 	u := os.Getenv("db_user")
-	p := os.Getenv("db_pass")
+	// p := os.Getenv("db_pass")
 	dbName := os.Getenv("db_name")
 	dbHost := os.Getenv("db_host")
 
-	dbUri := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, u, dbName, p)
+	dbUri := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable", dbHost, u, dbName)
+
+	fmt.Println(dbUri)
 
 	conn, err := gorm.Open("postgres", dbUri)
 

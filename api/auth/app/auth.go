@@ -1,6 +1,7 @@
 package app
 
 import (
+	"HoldemMasters/api/auth/models"
 	"HoldemMasters/api/auth/utils"
 	"context"
 	"fmt"
@@ -10,11 +11,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 )
-
-type Token struct {
-	UserId uint
-	jwt.StandardClaims
-}
 
 var JwtAuthentication = func(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +52,7 @@ var JwtAuthentication = func(next http.Handler) http.Handler {
 		}
 
 		tokenFromClient := splitToken[1]
-		tk := &Token{}
+		tk := models.Token{}
 
 		token, err := jwt.ParseWithClaims(tokenFromClient, tk, func(token *jwt.Token) (interface{}, error) {
 			return []byte(os.Getenv("token_secret")), nil

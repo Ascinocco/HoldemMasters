@@ -21,6 +21,8 @@ func main() {
 	}
 
 	router.HandleFunc("/auth-test", controllers.AuthTest).Methods("GET")
+	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
+	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
 
 	router.Handle("/", router)
 
