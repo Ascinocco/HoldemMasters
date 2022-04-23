@@ -16,10 +16,11 @@ type Token struct {
 }
 type User struct {
 	gorm.Model
-	Email    string `json:"email"`
-	Username string `json:"username"`
-	Password string `json:"password"`
-	Token    string `json:"token" sql:"-"`
+	Email                string `json:"email" gorm:"unique,index"`
+	Username             string `json:"username" gorm:"unique"`
+	Password             string `json:"password"`
+	PasswordConfirmation string `json:"passwordConfirmation" sql:"-"`
+	Token                string `json:"token" sql:"-"`
 }
 
 func (user *User) Validate() (map[string]interface{}, bool) {
@@ -29,6 +30,10 @@ func (user *User) Validate() (map[string]interface{}, bool) {
 
 	if len(user.Password) < 6 {
 		return utils.Message(false, "Password must have length greater than 6, contain 1 number and 1 symbol"), false
+	}
+
+	if user.Password != user.PasswordConfirmation {
+		return utils.Message(false, "Passwords do not match"), false
 	}
 
 	if len(user.Username) < 3 {
