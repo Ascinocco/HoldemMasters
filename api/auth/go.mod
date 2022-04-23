@@ -30,6 +30,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/pelletier/go-toml v1.9.5 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
+	github.com/rs/cors v1.8.2 // indirect
 	golang.org/x/sys v0.0.0-20220422013727-9388b58f7150 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gorm.io/driver/postgres v1.3.4 // indirect
