@@ -13,6 +13,10 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
+type UnauthorizedResponse struct {
+	Error string `json:"error"`
+}
+
 func JwtAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Endpoints that are not authenticated
@@ -29,12 +33,12 @@ func JwtAuthentication(next http.Handler) http.Handler {
 			}
 		}
 
-		response := make(map[string]interface{})
+		response := UnauthorizedResponse{}
 		tokenHeader := r.Header.Get("Authorization")
 
 		// if no auth token is provided, 403 unauth'd
 		if tokenHeader == "" {
-			response = utils.Message(false, "Missing auth token")
+			response.Error = "Missing auth token"
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
 			utils.Respond(w, response)
@@ -45,7 +49,7 @@ func JwtAuthentication(next http.Handler) http.Handler {
 		// split the token into an array, 0 = "Bearer", 1 = "the-actual-token"
 		splitToken := strings.Split(tokenHeader, " ")
 		if len(splitToken) != 2 {
-			response = utils.Message(false, "Invalid/Malformed auth token")
+			response.Error = "Invalid/Malformed auth token"
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
 			utils.Respond(w, response)
@@ -60,7 +64,7 @@ func JwtAuthentication(next http.Handler) http.Handler {
 		})
 
 		if err != nil {
-			response = utils.Message(false, "Malformed auth token")
+			response.Error = "Malformed auth token"
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
 			utils.Respond(w, response)
@@ -68,7 +72,7 @@ func JwtAuthentication(next http.Handler) http.Handler {
 		}
 
 		if !token.Valid { //Token is invalid, maybe not signed on this server
-			response = utils.Message(false, "Token is not valid.")
+			response.Error = "Token is not valid."
 			w.WriteHeader(http.StatusForbidden)
 			w.Header().Add("Content-Type", "application/json")
 			utils.Respond(w, response)
