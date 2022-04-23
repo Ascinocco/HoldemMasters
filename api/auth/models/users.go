@@ -10,10 +10,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type Token struct {
-	UserId uint
-	jwt.StandardClaims
-}
 type User struct {
 	gorm.Model
 	Email                string `json:"email" gorm:"unique,index"`
@@ -80,44 +76,4 @@ func (user *User) Create() map[string]interface{} {
 	response["user"] = user
 
 	return response
-}
-
-func Login(email, password string) map[string]interface{} {
-	user := &User{}
-	err := GetDB().Table("users").Where("email = ?", email).First(user).Error
-
-	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			return utils.Message(false, "Email address not found")
-		}
-		return utils.Message(false, "Connection error. Please retry")
-	}
-
-	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
-
-	if err != nil && err == bcrypt.ErrMismatchedHashAndPassword { //Password does not match!
-		return utils.Message(false, "Invalid login credentials. Please try again")
-	}
-
-	user.Password = ""
-
-	tk := &Token{UserId: user.ID}
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, _ := token.SignedString([]byte(os.Getenv("token_password")))
-	user.Token = tokenString //Store the token in the response
-
-	resp := utils.Message(true, "Logged In")
-	resp["user"] = user
-	return resp
-}
-
-func GetUser(id uint) *User {
-	user := &User{}
-	GetDB().Table("users").Where("id = ?", id).First(user)
-	if user.Email == "" { //User not found!
-		return nil
-	}
-
-	user.Password = ""
-	return user
 }

@@ -9,14 +9,17 @@ import (
 
 func CreateSession(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{}
-
 	err := json.NewDecoder(r.Body).Decode(user)
 
 	if err != nil {
-		utils.Respond(w, utils.Message(false, "Invalid request"))
+		resp := models.SessionResponse{
+			Error: "Invalid Request",
+		}
+
+		utils.Respond(w, resp)
 		return
 	}
 
-	resp := models.Login(user.Email, user.Password)
+	resp := models.Authenticate(user.Email, user.Password)
 	utils.Respond(w, resp)
 }
