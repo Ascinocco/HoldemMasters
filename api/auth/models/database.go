@@ -22,6 +22,8 @@ func init() {
 	p := os.Getenv("db_pass")
 	dbName := os.Getenv("db_name")
 	dbHost := os.Getenv("db_host")
+	env := os.Getenv("ENV")
+	dropDb := os.Getenv("DROP_DB")
 
 	dbUri := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, u, dbName, p)
 
@@ -35,6 +37,11 @@ func init() {
 	}
 
 	db = conn
+
+	if env == "local" && dropDb == "true" {
+		db.Debug().DropTableIfExists("users")
+	}
+
 	db.Debug().AutoMigrate(&User{})
 }
 
