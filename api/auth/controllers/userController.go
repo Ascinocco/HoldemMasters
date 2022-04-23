@@ -7,16 +7,44 @@ import (
 	"net/http"
 )
 
+type CreateResponse struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Token    string `json:"token"`
+	Error    string `json:"error"`
+}
+
 func CreateUser(w http.ResponseWriter, r *http.Request) {
 	user := &models.User{}
 
 	err := json.NewDecoder(r.Body).Decode(user)
-
 	if err != nil {
-		utils.Respond(w, utils.Message(false, "Invalid request"))
+		resp := models.UserResponse{
+			Error: "Invalid Request",
+		}
+
+		w.WriteHeader(http.StatusBadRequest)
+		utils.Respond(w, resp)
 		return
 	}
 
-	resp := user.Create()
-	utils.Respond(w, resp)
+	uResp, err := user.Create()
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.Respond(w, uResp)
+		return
+	}
+
+	tResp, err := models.Authenticate(user.Email, user.PasswordConfirmation)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		utils.Respond(w, tResp)
+		return
+	}
+
+	utils.Respond(w, CreateResponse{
+		Email:    uResp.Email,
+		Username: uResp.Username,
+		Token:    tResp.Token,
+	})
 }

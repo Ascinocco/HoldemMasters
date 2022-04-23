@@ -1,11 +1,9 @@
 package models
 
 import (
-	"HoldemMasters/api/auth/utils"
-	"os"
+	"errors"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
 	"github.com/jinzhu/gorm"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -19,22 +17,28 @@ type User struct {
 	Token                string `json:"token" sql:"-"`
 }
 
-func (user *User) Validate() (map[string]interface{}, bool) {
+type UserResponse struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Error    string `json:"error"`
+}
+
+func (user *User) Validate() (UserResponse, bool) {
 	if !strings.Contains(user.Email, "@") {
-		return utils.Message(false, "Email address is required"), false
+		return UserResponse{Error: "Invalid email"}, false
 	}
 
 	// @TODO: Improve pw validation
 	if len(user.Password) < 6 {
-		return utils.Message(false, "Password must have length greater than 6, contain 1 number and 1 symbol"), false
+		return UserResponse{Error: "Password must be greater than 6 characters"}, false
 	}
 
 	if user.Password != user.PasswordConfirmation {
-		return utils.Message(false, "Passwords do not match"), false
+		return UserResponse{Error: "Passwords do not match"}, false
 	}
 
 	if len(user.Username) < 3 {
-		return utils.Message(false, "Username must be at least 3 characters"), false
+		return UserResponse{Error: "Username must be at least 3 characters"}, false
 	}
 
 	tu := &User{}
@@ -42,19 +46,19 @@ func (user *User) Validate() (map[string]interface{}, bool) {
 	err := GetDB().Table("users").Where("email = ?", user.Email).First(tu).Error
 
 	if err != nil && err != gorm.ErrRecordNotFound {
-		return utils.Message(false, "Connection error. Please retry."), false
+		return UserResponse{Error: "Please try again"}, false
 	}
 
 	if tu.Email != "" {
-		return utils.Message(false, "Email address cannot be registered."), false
+		return UserResponse{Error: "Email cannot be registered"}, false
 	}
 
-	return utils.Message(false, "Success validating user"), true
+	return UserResponse{}, true
 }
 
-func (user *User) Create() map[string]interface{} {
+func (user *User) Create() (UserResponse, error) {
 	if resp, ok := user.Validate(); !ok {
-		return resp
+		return resp, errors.New(resp.Error)
 	}
 
 	hashedPw, _ := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
@@ -63,17 +67,11 @@ func (user *User) Create() map[string]interface{} {
 	GetDB().Create(user)
 
 	if user.ID <= 0 {
-		return utils.Message(false, "Failed to create account, connection error.")
+		return UserResponse{Error: "Failed to create user"}, errors.New("Failed to create user")
 	}
 
-	tk := &Token{UserId: user.ID}
-	token := jwt.NewWithClaims(jwt.GetSigningMethod("HS256"), tk)
-	tokenString, _ := token.SignedString([]byte(os.Getenv("token_secret")))
-	user.Token = tokenString
-	user.Password = ""
-	user.PasswordConfirmation = ""
-	response := utils.Message(true, "Account has been created")
-	response["user"] = user
-
-	return response
+	return UserResponse{
+		Email:    user.Email,
+		Username: user.Username,
+	}, nil
 }
