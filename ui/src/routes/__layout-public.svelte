@@ -1,3 +1,16 @@
+<script lang="ts">
+  import { onMount } from "svelte";
+  import { goto } from "$app/navigation";
+
+  onMount(() => {
+    const token = sessionStorage.getItem("token");
+
+    if (token) {
+      goto("/app/play")
+    }
+  })
+</script>
+
 <div class="navbar bg-base-100">
   <div class="flex-1">
     <a href="/" class="btn btn-ghost normal-case text-xl">Hold'em Masters</a>

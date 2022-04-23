@@ -1,10 +1,19 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { user } from "../stores/user";
   type FormErrors = {
     email?: string;
     username?: string;
     password?: string;
     passwordConfirmation?: string;
   } | undefined;
+
+  type CreateUserResponse = {
+    email: string;
+    username: string;
+    token: string;
+    error: string;
+  };
 
   const pwRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
 
@@ -13,6 +22,7 @@
   let password = "";
   let passwordConfirmation = "";
   let errors;
+  let apiError;
 
   const validateFormData = () => {
     let errors: FormErrors = undefined;
@@ -61,9 +71,38 @@
     return errors;
   };
 
-  const handleSubmit = (e) => {
+  const createUser = () => {
+    fetch("http://localhost:8080/api/v1/user", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        username,
+        password,
+        passwordConfirmation
+      })
+    })
+    .then(res => res.json())
+    .then((res: CreateUserResponse) => {
+      if (res.error) {
+        apiError = res.error;
+        return;
+      }
+
+      apiError = null;
+      sessionStorage.setItem("token", res.token);
+      user.add({
+        email: res.email,
+        username: res.username,
+      });
+
+      goto("/app/play");
+    })
+  }
+
+  const handleSubmit = () => {
     errors = validateFormData();
     if (errors) return;
+    createUser();
   };
 </script>
 
@@ -118,6 +157,11 @@
             </span>
           </div>
           <div class="card-actions">
+            <span class="label-text-alt text-rose-800 p-1 input-error">
+              {#if apiError}
+                {apiError}
+              {/if}
+            </span>
             <button for="sign-up" class="btn btn-primary btn-block" type="submit">Sign Up</button>
           </div>
         </form>
