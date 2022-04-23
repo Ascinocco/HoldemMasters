@@ -20,7 +20,6 @@ func main() {
 		port = "8080"
 	}
 
-	router.HandleFunc("/auth-test", controllers.AuthTest).Methods("GET")
 	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
 	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
 

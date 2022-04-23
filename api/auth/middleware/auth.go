@@ -15,7 +15,7 @@ import (
 func JwtAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Endpoints that are not authenticated
-		unauthenticatedEndpoints := []string{"/api/user/new", "/api/user/login", "/auth-test"}
+		unauthenticatedEndpoints := []string{"/api/user/new", "/api/user/login"}
 
 		// current url
 		requestPath := r.URL.Path
