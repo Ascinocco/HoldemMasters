@@ -1,12 +1,20 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+
   type FormErrors = {
     email?: string;
     password?: string;
   } | undefined;
 
+  type LoginResponse = {
+    token: string;
+    error: string;
+  }
+
   let email = "";
   let password = "";
   let errors;
+  let apiError;
 
   const validateFormData = () => {
     let errors: FormErrors = undefined;
@@ -27,9 +35,33 @@
     return errors;
   };
 
-  const handleSubmit = (e) => {
+  const login = () => {
+    fetch("http://localhost:8080/api/v1/session", {
+      method: "POST",
+      body: JSON.stringify({
+        email,
+        password,
+      }),
+    })
+    .then(res => res.json())
+    .then((res: LoginResponse) => {
+      if (res.error) {
+        apiError = res.error;
+        return;
+      }
+
+      apiError = null;
+      sessionStorage.setItem("token", res.token);
+
+      // @TODO: fetch user when we have endpoint, or attach email and username to session response...
+      goto("/app/play")
+    });
+  }
+
+  const handleSubmit = () => {
     errors = validateFormData();
     if (errors) return;
+    login();
   };
 </script>
 
