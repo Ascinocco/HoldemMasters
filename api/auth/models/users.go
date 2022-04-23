@@ -28,6 +28,7 @@ func (user *User) Validate() (map[string]interface{}, bool) {
 		return utils.Message(false, "Email address is required"), false
 	}
 
+	// @TODO: Improve pw validation
 	if len(user.Password) < 6 {
 		return utils.Message(false, "Password must have length greater than 6, contain 1 number and 1 symbol"), false
 	}

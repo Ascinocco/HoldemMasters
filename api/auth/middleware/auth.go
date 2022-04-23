@@ -1,4 +1,4 @@
-package app
+package middleware
 
 import (
 	"HoldemMasters/api/auth/models"
@@ -12,7 +12,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 )
 
-var JwtAuthentication = func(next http.Handler) http.Handler {
+func JwtAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Endpoints that are not authenticated
 		unauthenticatedEndpoints := []string{"/api/user/new", "/api/user/login", "/auth-test"}

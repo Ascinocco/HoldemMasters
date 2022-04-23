@@ -1,8 +1,8 @@
 package main
 
 import (
-	"HoldemMasters/api/auth/app"
 	"HoldemMasters/api/auth/controllers"
+	"HoldemMasters/api/auth/middleware"
 	"fmt"
 	"net/http"
 	"os"
@@ -12,7 +12,7 @@ import (
 
 func main() {
 	router := mux.NewRouter()
-	router.Use(app.JwtAuthentication)
+	router.Use(middleware.JwtAuthentication)
 
 	port := os.Getenv("PORT")
 
