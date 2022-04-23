@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"HoldemMasters/api/auth/models"
+	"HoldemMasters/api/auth/routes"
 	"HoldemMasters/api/auth/utils"
 	"context"
 	"fmt"
@@ -15,7 +16,7 @@ import (
 func JwtAuthentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Endpoints that are not authenticated
-		unauthenticatedEndpoints := []string{"/api/user/new", "/api/user/login"}
+		unauthenticatedEndpoints := []string{routes.PublicRoutes["CreateUser"], routes.PublicRoutes["CreateSession"]}
 
 		// current url
 		requestPath := r.URL.Path

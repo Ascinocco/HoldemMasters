@@ -75,6 +75,7 @@ func (user *User) Create() map[string]interface{} {
 	tokenString, _ := token.SignedString([]byte(os.Getenv("token_secret")))
 	user.Token = tokenString
 	user.Password = ""
+	user.PasswordConfirmation = ""
 	response := utils.Message(true, "Account has been created")
 	response["user"] = user
 

@@ -3,6 +3,7 @@ package main
 import (
 	"HoldemMasters/api/auth/controllers"
 	"HoldemMasters/api/auth/middleware"
+	"HoldemMasters/api/auth/routes"
 	"fmt"
 	"net/http"
 	"os"
@@ -20,8 +21,8 @@ func main() {
 		port = "8080"
 	}
 
-	router.HandleFunc("/api/user/new", controllers.CreateAccount).Methods("POST")
-	router.HandleFunc("/api/user/login", controllers.Authenticate).Methods("POST")
+	router.HandleFunc(routes.PublicRoutes["CreateUser"], controllers.CreateUser).Methods("POST")
+	router.HandleFunc(routes.PublicRoutes["CreateSession"], controllers.CreateSession).Methods("POST")
 
 	router.Handle("/", router)
 
