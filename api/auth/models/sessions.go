@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"os"
 
 	"github.com/dgrijalva/jwt-go"
@@ -21,18 +22,18 @@ var ErrorResponse = SessionResponse{
 	Error: "Unable to create session, please try again.",
 }
 
-func Authenticate(email, password string) SessionResponse {
+func Authenticate(email, password string) (SessionResponse, error) {
 	user := &User{}
 	err := GetDB().Table("users").Where("email = ?", email).First(user).Error
 
 	if err != nil {
-		return ErrorResponse
+		return ErrorResponse, errors.New(ErrorResponse.Error)
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 
 	if err != nil {
-		return ErrorResponse
+		return ErrorResponse, errors.New(ErrorResponse.Error)
 	}
 
 	tokenData := &Token{UserId: user.ID}
@@ -40,10 +41,10 @@ func Authenticate(email, password string) SessionResponse {
 	tokenString, err := token.SignedString([]byte(os.Getenv("token_password")))
 
 	if err != nil {
-		return ErrorResponse
+		return ErrorResponse, errors.New(ErrorResponse.Error)
 	}
 
 	return SessionResponse{
 		Token: tokenString,
-	}
+	}, nil
 }

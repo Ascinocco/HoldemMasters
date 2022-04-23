@@ -16,10 +16,18 @@ func CreateSession(w http.ResponseWriter, r *http.Request) {
 			Error: "Invalid Request",
 		}
 
+		w.WriteHeader(http.StatusBadRequest)
 		utils.Respond(w, resp)
 		return
 	}
 
-	resp := models.Authenticate(user.Email, user.Password)
+	resp, err := models.Authenticate(user.Email, user.Password)
+
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+
 	utils.Respond(w, resp)
 }

@@ -21,6 +21,7 @@ func main() {
 		port = "8080"
 	}
 
+	// @TODO: Add status codes to responses
 	router.HandleFunc(routes.PublicRoutes["CreateUser"], controllers.CreateUser).Methods("POST")
 	router.HandleFunc(routes.PublicRoutes["CreateSession"], controllers.CreateSession).Methods("POST")
 
